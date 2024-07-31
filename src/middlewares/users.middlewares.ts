@@ -1,4 +1,3 @@
-import { error } from 'console'
 import { Request, Response, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
 export const LoginValidator = (req: Request, res: Response, next: NextFunction) => {
