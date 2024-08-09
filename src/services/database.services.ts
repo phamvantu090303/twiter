@@ -2,6 +2,7 @@ import { config } from 'dotenv' // để sử dụng được biến môi trư�
 config() // config(): Chức năng này đọc tệp .env và làm cho nội dung của nó có sẵn thông qua process.env
 import { MongoClient, Db, Collection } from 'mongodb'
 import User from '../models/schemas/User.schema'
+import RefreshToken from '../models/schemas/ResfestToken.Schema'
 
 // sử dụng process để trỏ đến file env để sử dụng tài nguyên từ file đó
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.jdianmg.mongodb.net/?retryWrites=true&w=majority&appName=Twitte`
@@ -26,8 +27,13 @@ class DatabaseService {
     }
   }
   get users(): Collection<User> {
-    //kết nối với cột Users trong database(cột user đươc khai báo trong env và bắt buộc gán á string để ko lổi)
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
+  }
+
+ //Nếu collection với tên chỉ định bởi process.env.DB_USERS_COLLECTION đã tồn tại trong cơ sở dữ liệu, thì phương thức này sẽ trả về đối tượng Collection<User> để bạn có thể thao tác với collection đó (DB_REFESH_TOKENS_COLLECTION) trên database.
+ //Nếu collection chưa tồn tại, MongoDB sẽ tự động tạo mới collection đó khi bạn thực hiện thao tác ghi
+  get refeshToken(): Collection<RefreshToken> {
+    return this.db.collection(process.env.DB_REFESH_TOKENS_COLLECTION as string)
   }
 }
 

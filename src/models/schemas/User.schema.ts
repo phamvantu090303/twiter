@@ -1,15 +1,11 @@
 import { ObjectId } from 'mongodb'
-enum UserVerifyStatus {
-  Unverified, //chưa xác thực email mặc định bằng 0
-  erified, //đã xác thực email
-  Banned //bị khóa
-}
+import { UserVerifyStatus } from '../../constants/enums'
 
 interface UserType {
   _id?: ObjectId
-  name?: string //thêm dấu ? vào nghỉa là trường name có thể là kiểu String hoặc là undefined
+  name: string //thêm dấu ? vào nghỉa là trường name có thể là kiểu String hoặc là undefined
   email: string
-  date_of_birth?: Date
+  date_of_birth: Date
   password: string
   created_at?: Date
   updated_at?: Date
