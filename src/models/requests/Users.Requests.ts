@@ -5,3 +5,6 @@ export interface RegisterReqBody {
   confirm_password: string
   data_of_birth: string
 }
+export interface LogoutReqBody {
+  refresh_token: string
+}
