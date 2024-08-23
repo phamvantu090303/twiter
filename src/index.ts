@@ -9,7 +9,12 @@ const app = express()
 // Sử dụng cookie-parser middleware
 
 const port = 3000
-app.use(cors())
+app.use(
+  cors({
+    origin: 'http://localhost:3001', // Địa chỉ của ứng dụng frontend
+    credentials: true // Cho phép gửi cookie cùng với request
+  })
+)
 app.use(express.json())
 
 // Middleware để phục vụ các file tĩnh

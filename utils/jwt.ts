@@ -6,13 +6,13 @@ import { reject } from 'lodash'
 export const signToken = ({
   //đoạn code này dùng để quy định kiểu dử liệu khi truyền tham số vào
   payload,
-  privatekey = process.env.JWT_SECRET as string,
+  privatekey,
   options = {
     algorithm: 'RS256'
   }
 }: {
   payload: string | Buffer | object //kiểu dử liệu của từng tham số
-  privatekey?: string
+  privatekey: string
   options?: SignOptions
 }) => {
   return new Promise<string>((resolve, reject) => {
@@ -28,10 +28,10 @@ export const signToken = ({
 }
 export const verifyToken = ({//hàm giải mã token
   token,
-  secretOrPublickey = process.env.JWT_SECRET as string
+  secretOrPublickey
 }: {
   token: string
-  secretOrPublickey?: string
+  secretOrPublickey: string
 }) => {
   return new Promise<string | object>((resolve, reject) => {
     jwt.verify(token, secretOrPublickey, (error, decoded) => {

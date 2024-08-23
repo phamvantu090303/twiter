@@ -1,9 +1,12 @@
 // src/App.tsx
 import React, { useState } from 'react';
-
 import './App.css';
+
+import 'react-toastify/dist/ReactToastify.css';
 import Register from './client/register/register';
 import Login from './client/login/Login';
+import Footer from './client/footer';
+import LoginComponent from './client/login/Login';
 
 
 const App: React.FC = () => {
@@ -16,24 +19,8 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <button onClick={toggleForm}>
-          {showLogin ? 'Chuyển sang Đăng ký' : 'Chuyển sang Đăng nhập'}
-        </button>
-        {showLogin ? (
-          <>
-            <h1>Giao diện Đăng nhập</h1>
-            <Login />
-          
-          </>
-        ) : (
-          <>
-            <h1>Giao diện Đăng ký</h1>
-            <Register />
-          </>
-        )}
-      </header>
-    
+     <LoginComponent />
+     
     </div>
   );
 };

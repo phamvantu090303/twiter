@@ -3,6 +3,7 @@ config() // config(): Chức năng này đọc tệp .env và làm cho nội dun
 import { MongoClient, Db, Collection } from 'mongodb'
 import User from '../models/schemas/User.schema'
 import RefreshToken from '../models/schemas/ResfestToken.Schema'
+import Followers from '../models/schemas/Follower.schema'
 
 // sử dụng process để trỏ đến file env để sử dụng tài nguyên từ file đó
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@twitter.jdianmg.mongodb.net/?retryWrites=true&w=majority&appName=Twitte`
@@ -34,6 +35,9 @@ class DatabaseService {
  //Nếu collection chưa tồn tại, MongoDB sẽ tự động tạo mới collection đó khi bạn thực hiện thao tác ghi
   get refeshToken(): Collection<RefreshToken> {
     return this.db.collection(process.env.DB_REFESH_TOKENS_COLLECTION as string)
+  }
+  get followers(): Collection<Followers> {
+    return this.db.collection(process.env.DB_FOLLOWERS_CQLLECTION as string)
   }
 }
 

@@ -1,66 +1,99 @@
-// src/Register.tsx
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import styles from './Register.module.scss';
+import btn from '../login/button.module.scss';
+import twitter from '../login/img/twitter.jpg';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
-interface RegisterFormInputs {
-  name: string;
-  email: string;
-  date_of_birth: string;
-  password: string;
-  confirm_password: string;
+interface RegisterProps {
+  showRegister: boolean;
+  onClose: () => void;
 }
 
-const schema = yup.object().shape({
-  name: yup.string().required('Tên là bắt buộc'),
-  email: yup.string().email('Email không hợp lệ').required('Email là bắt buộc'),
-  date_of_birth: yup.string().required('Ngày sinh là bắt buộc'),
-  password: yup.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự').required('Mật khẩu là bắt buộc'),
-  confirm_password: yup.string()
-    .oneOf([yup.ref('password')], 'Mật khẩu xác nhận không khớp')
-    .required('Xác nhận mật khẩu là bắt buộc'),
-});
+ interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+  date_of_birth: string;
+}
 
-const Register: React.FC = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormInputs>({
-    resolver: yupResolver(schema),
-  });
+export default function Register({ showRegister, onClose }: RegisterProps) {
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>();
 
-  const onSubmit = (data: RegisterFormInputs) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    try {
+      // Gửi request đăng ký đến server
+      const response = await axios.post('http://localhost:3000/api/register', data, {
+        withCredentials: true
+      });
+
+      // Hiển thị thông báo thành công
+      toast.success('Đăng ký thành công!');
+
+      // Đóng modal sau khi đăng ký thành công
+      onClose();
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+        toast.error(errorMessage);
+      } else {
+        toast.error('Đã xảy ra lỗi không xác định.');
+      }
+    }
   };
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label htmlFor="name">Tên</label>
-        <input id="name" {...register('name')} />
-        {errors.name && <span>{errors.name.message}</span>}
-      </div>
-      <div>
-        <label htmlFor="email">Email</label>
-        <input id="email" type="email" {...register('email')} />
-        {errors.email && <span>{errors.email.message}</span>}
-      </div>
-      <div>
-        <label htmlFor="date_of_birth">Ngày sinh</label>
-        <input id="date_of_birth" type="date" {...register('date_of_birth')} />
-        {errors.date_of_birth && <span>{errors.date_of_birth.message}</span>}
-      </div>
-      <div>
-        <label htmlFor="password">Mật khẩu</label>
-        <input id="password" type="password" {...register('password')} />
-        {errors.password && <span>{errors.password.message}</span>}
-      </div>
-      <div>
-        <label htmlFor="confirm_password">Xác nhận mật khẩu</label>
-        <input id="confirm_password" type="password" {...register('confirm_password')} />
-        {errors.confirm_password && <span>{errors.confirm_password.message}</span>}
-      </div>
-      <button type="submit">Đăng ký</button>
-    </form>
-  );
-};
+  if (!showRegister) return null;
 
-export default Register;
+  return (
+    <div className={`${styles.twitterRegister} ${styles.show}`}>
+      <div className={styles.twitterRegister__block}>
+        {/* Block create : email, tên, ngày sinh, mật khẩu */}
+        <a className={styles.twitterRegister__close} onClick={onClose}>X</a>
+        <img src={twitter} className={styles.twitterRegister__icon} alt="Twitter Icon" />
+        <h2 className={`${styles.twitterRegister__heading} ${styles['twitterRegister__heading-mb33']}`}>Tạo tài khoản của bạn</h2>  
+        <form className={styles.twitterRegister__form} onSubmit={handleSubmit(onSubmit)}>
+          <input type="text" placeholder="Tên" className={styles.twitterRegister__name} {...register('name', {
+            required: { value: true, message: 'Tên là bắt buộc' },
+            pattern: { value: /^[A-Za-z\s]+$/, message: 'Tên không được có ký tự đặc biệt' }
+          })} />
+          <div className={styles.twitterRegister__errors}>{errors.name?.message}</div>
+
+          <input type="text" placeholder="Email" className={styles.twitterRegister__email} {...register('email', {
+            required: { value: true, message: 'Email là bắt buộc' },
+            pattern: { value: /^\S+@\S+\.\S+$/, message: 'Email không đúng định dạng' }
+          })} />
+          <div className={styles.twitterRegister__errors}>{errors.email?.message}</div>
+
+          <input type="password" placeholder="Mật khẩu" className={styles.twitterRegister__password} {...register('password', {
+            required: { value: true, message: 'Mật khẩu là bắt buộc' },
+            minLength: { value: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' }
+          })} />
+          <div className={styles.twitterRegister__errors}>{errors.password?.message}</div>
+
+          <input type="password" placeholder="Xác nhận mật khẩu" className={styles.twitterRegister__confirm_password} {...register('confirm_password', {
+            required: { value: true, message: 'Xác nhận mật khẩu là bắt buộc' },
+            validate: value => value === watch('password') || 'Mật khẩu xác nhận không khớp'
+          })} />
+          <div className={styles.twitterRegister__errors}>{errors.confirm_password?.message}</div>
+
+          <div className={styles.twitterRegister__comment}>
+            <h6 className={styles.twitterRegister__title}>Ngày sinh</h6>
+            <p className={styles.twitterRegister__desc}>
+              Điều này sẽ không được hiển thị công khai. Xác nhận tuổi của bạn, ngay cả khi tài khoản này dành cho doanh nghiệp, thú cưng hoặc thứ gì khác.
+            </p>
+          </div>
+          <input type="date" className={styles.twitterRegister__date} {...register('date_of_birth', {
+            required: { value: true, message: 'Bắt buộc chọn ngày sinh' }
+          })} />
+          <div className={styles.twitterRegister__errors}>{errors.date_of_birth?.message}</div>
+
+          <button type="submit" className={`${btn.btn1} ${btn['btn1-mt100']}`}>
+            ĐĂNG KÝ
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
