@@ -1,7 +1,7 @@
-import { changePasswordValidator, followValidator, unfollowValidator } from './../middlewares/users.middlewares';
+import { changePasswordValidator, followValidator, refreshTokenValidator, unfollowValidator } from './../middlewares/users.middlewares';
 import { wrapRequestHandler } from './../../utils/handlerl'
 import { validate } from './../../utils/validation'
-import { changePasswordController, followController, forgotPasswordController, getMeController, getUsersForFollow, loginController, logoutController, registerController, resendverifyEmailController, resetPasswordController, unfollowController, updateMeController, verifyEmailController, verifyForgotPasswordController } from '../controllers/users.controllers'
+import { changePasswordController, followController, forgotPasswordController, getMeController, getUsersForFollow, loginController, logoutController, refreshTokenController, registerController, resendverifyEmailController, resetPasswordController, unfollowController, updateMeController, verifyEmailController, verifyForgotPasswordController } from '../controllers/users.controllers'
 import { Router } from 'express'
 import {
   accessTokenValidatetor,
@@ -31,7 +31,7 @@ UserRouter.post('/resend-forgot-password', forgotPasswordValidator, wrapRequestH
 UserRouter.post('/verify-forgot-password', verifyForgotPasswordTokenValidator,wrapRequestHandler(verifyForgotPasswordController))
 UserRouter.post('/reset-password', resetPasswordTokenValidator, wrapRequestHandler(resetPasswordController))
 UserRouter.get('/me', accessTokenValidatetor, wrapRequestHandler(getMeController))
-UserRouter.patch('/me',
+UserRouter.patch('/updateme', //này là cập nhật thông tin cá nhân
   accessTokenValidatetor,
   verifiedUserValidator,
   updateMeValidator,
@@ -50,6 +50,6 @@ UserRouter.patch('/me',
 UserRouter.get('/follow-list', accessTokenValidatetor, wrapRequestHandler(getUsersForFollow)) //lấy ds tất cả người dùng và đưa lên giao diện để hiện trên follow
 UserRouter.post('/follow',accessTokenValidatetor, verifiedUserValidator,followValidator,wrapRequestHandler(followController))
 UserRouter.delete('/follow/:user_id', accessTokenValidatetor,verifiedUserValidator,unfollowValidator, wrapRequestHandler(unfollowController))
-UserRouter.put('/change-password',accessTokenValidatetor,verifiedUserValidator,changePasswordValidator,wrapRequestHandler(changePasswordController)
-)
+UserRouter.put('/change-password',accessTokenValidatetor,verifiedUserValidator,changePasswordValidator,wrapRequestHandler(changePasswordController))
+UserRouter.post('/refresh-token',refreshTokenValidator,wrapRequestHandler(refreshTokenController))
 export default UserRouter

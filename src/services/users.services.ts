@@ -78,7 +78,7 @@ class UsersService {
       user_id: user_id.toString(),
       verify: UserVerifyStatus.Unverified
     })
-    console.log(email_verify_token)
+    // console.log(email_verify_token)
     await databaseService.users.insertOne(
       new User({
         _id: user_id,
@@ -106,7 +106,8 @@ class UsersService {
     // )
     return {
       access_token,
-      refregh_token
+      refregh_token,
+      email_verify_token
     }
   }
   //đăng nhập
@@ -178,7 +179,7 @@ class UsersService {
   async resendVerifyEmail(user_id: string) {
     const email_verify_token = await this.signEmailVeryfiToken({ user_id, verify: UserVerifyStatus.Unverified })
     //giả bộ gửi email
-    console.log('da gui email', email_verify_token)
+    // console.log('da gui email', email_verify_token)
     await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
       {
         $set: {
@@ -206,9 +207,9 @@ class UsersService {
       }
     ])
     // gửi email kèm đừng lịn đến email người dùng: https://twitter.com/forgot-password?token=token
-    console.log('forgot_password_token: ', forgot_password_token)
     return {
-      message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD
+      message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD,
+      forgot_password_token
     }
   }
 
@@ -312,7 +313,7 @@ class UsersService {
   }
   async changePassword(user_id: string, new_password: string) {
     await databaseService.users.updateOne(
-      {_id: new ObjectId(user_id)},
+      { _id: new ObjectId(user_id) },
       {
         $set: {
           password: hashPassword(new_password),
@@ -322,6 +323,33 @@ class UsersService {
     )
     return {
       message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS
+    }
+  }
+  //dùng để tạo accesstoken refreshtoken mới khi accesstoken hết hạn
+  async refeshToken({
+    user_id,
+    verify,
+    refersh_token
+  }: {
+    user_id: string
+    verify: UserVerifyStatus
+    refersh_token: string
+  }) {
+    const [new_access_token, new_refresh_token] = await Promise.all([
+      this.signAccessToken({ user_id, verify }),
+      this.signRefreshToken({ user_id, verify }),
+      databaseService.refeshToken.deleteOne({ token: refersh_token })
+    ])
+    // Thêm new_refresh_token vào cơ sở dữ liệu
+    await databaseService.refeshToken.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: new_refresh_token
+      })
+    )
+    return {
+      new_access_token,
+      new_refresh_token
     }
   }
 }

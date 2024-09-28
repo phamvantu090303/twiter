@@ -6,7 +6,7 @@
 }
 
 button{
-    min-width: 300px;
+  
     max-width: 100%;
     display: flex;
     align-items: center;
@@ -21,7 +21,10 @@ button{
     background-color: #e6e6e6;
     color: #000;
     height: 40px;
-
+    &-current{
+      min-width:300px;
+      height:40px;
+    }
 
     &.btn1-mt5 {
         margin-top: 7px;

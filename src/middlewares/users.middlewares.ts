@@ -15,7 +15,6 @@ import CustomRequest from '../type'
 import { TokenPayload } from '../models/requests/Users.Requests'
 import { UserVerifyStatus } from '../constants/enums'
 import { REGEX_USERNAME } from '../constants/regex'
-import { NOTFOUND } from 'dns'
 
 export const LoginValidator = validate(
   checkSchema({
@@ -261,7 +260,7 @@ export const refreshTokenValidator = validate(
 export const emailVerifyTokenValidator = validate(
   checkSchema(
     {
-      email_vreify_token: {
+      email_verify_token: {
         trim: true,
         custom: {
           options: async (value: string, { req }) => {
@@ -316,7 +315,6 @@ export const forgotPasswordValidator = validate(
   )
 )
 const forgotPasswordTokenSchema: ParamSchema = {
-  trim: true,
   custom: {
     options: async (value: string, { req }) => {
       if (!value) {
@@ -330,7 +328,7 @@ const forgotPasswordTokenSchema: ParamSchema = {
           token: value,
           secretOrPublickey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string
         })
-        const { user_id }: any = decoded_forgot_password_token
+        const { user_id } = decoded_forgot_password_token as TokenPayload
         const id = new ObjectId(user_id)
         const user = await databaseService.users.findOne({ _id: id })
         if (user === null) {
@@ -449,6 +447,7 @@ export const verifiedUserValidator = async (req: CustomRequest, res: Response, n
   }
   next()
 }
+
 const nameSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
@@ -633,3 +632,11 @@ export const changePasswordValidator = validate(
     confirm_password: confirmPasswordSchema
   })
 )
+export const isUserLoggedInValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.headers.authorization) {
+      return middleware(req, res, next)
+    }
+    next()
+  }
+}
